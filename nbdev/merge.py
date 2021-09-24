@@ -104,6 +104,12 @@ def nbdev_fix_merge(fname:Param("A notebook filename to fix", str),
         c,cf,names,prev,added = analyze_cell(cell, cf, names, prev, added, fast=fast, trust_us=trust_us)
         res.append(c)
     if res[-1].endswith(','): res[-1] = res[-1][:-1]
+
+    # fix end which may have conflicts    
+    if _re_conflict.search(end):
+        i = 0 if trust_us else 1
+        end = _split_cell(end, 0, [None,None])[i]
+
     with open(f'{fname}', 'w') as f: f.write('\n'.join([r for r in res+[end] if len(r) > 0]))
     if fast and not added: print("Successfully merged conflicts!")
     else: print("One or more conflict remains in the notebook, please inspect manually.")
